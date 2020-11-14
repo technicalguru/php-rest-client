@@ -1,2 +1,2 @@
 # php-rest-client
-A PHP REST client
+A lightweight REST client based on PHP curl.
