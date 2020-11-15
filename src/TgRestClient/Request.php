@@ -117,24 +117,26 @@ class Request {
     
     /**
      * Returns the configured curl resource handle for this request.
+     * @param int $timeout - the timeout from the execution call, (optional, default is 5)
      * @return mixed: the curl resource handle
      */
-    public function getCurl() {
+    public function getCurl($timeout = 5) {
         if ($this->curl == NULL) {
-            $this->curl = $this->createCurl();
+            $this->curl = $this->createCurl($timeout);
         }
         return $this->curl;
     }
     
     /**
      * Creates the configured curl resource handle for this request.
+     * @param int $timeout - the timeout from the execution call, (optional, default is 5)
      * @return mixed: the curl resource handle
      */
-    public function createCurl() {
+    public function createCurl($timeout = 5) {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->url->__toString());
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);       
-        curl_setopt($curl, CURLOPT_TIMEOUT,       $this->timeout);
+        curl_setopt($curl, CURLOPT_TIMEOUT,       $timeout);
         
         if (($this->method == self::PATCH) || ($this->method == self::PUT) || ($this->method == self::POST)) {
             $body = $this->getStringifiedBody();

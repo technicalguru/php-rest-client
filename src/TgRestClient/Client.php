@@ -42,7 +42,7 @@ class Client {
             $mcurl = curl_multi_init();
 
             foreach ($this->requests as $request) {
-                $curl = $request->getCurl();
+                $curl = $request->getCurl($timeout);
                 curl_setopt($curl, CURLOPT_HEADER, 1);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
                 curl_multi_add_handle($mcurl, $curl);
