@@ -2,18 +2,22 @@
 
 namespace TgRestClient;
 
+use TgUtils\URL;
+
 /**
  * Describes a REST request.
  * @author ralph
  *        
  */
-class RestRequest {
+class Request {
 
-    public const HEAD   = 'HEAD';
-    public const GET    = 'GET';
-    public const POST   = 'POST';
-    public const PUT    = 'PUT';
-    public const DELETE = 'DELETE';
+    public const HEAD    = 'HEAD';
+    public const GET     = 'GET';
+    public const OPTIONS = 'OPTIONS';
+    public const PATCH   = 'PATCH';
+    public const POST    = 'POST';
+    public const PUT     = 'PUT';
+    public const DELETE  = 'DELETE';
     
     protected $method;
     protected $url;
@@ -21,6 +25,7 @@ class RestRequest {
     protected $body;
     protected $timeout;
     protected $curl;
+    
     /**
      * Constructor.
      * @param string $method - HTTP method to be executed
@@ -28,8 +33,8 @@ class RestRequest {
      */
     public function __construct($method, $url) {
         $this->method  = $method;
-        $this->url     = $url;
-        $this->headers = array();
+        $this->url     = new URL($url);
+        $this->headers = Headers::getHeaders($this->url->getHost());
         $this->body    = NULL;
         $this->timeout = 5;
         $this->curl    = NULL;
@@ -75,18 +80,21 @@ class RestRequest {
         return $this->timeout;
     }
 
-/**
+    /**
      * Sets a header for the request.
      * @param string $name - name of header
-     * @param string value - value of header;
+     * @param string value - value of header
+     * @return Request this object for chaining
      */
     public function setHeader($name, $value) {
         $this->headers[$name] = $value;
+        return $this;
     }
     
     /**
      * Adds all given headers to this request.
      * @param array $headers - headers as NAME => VALUE array
+     * @return Request this object for chaining
      */
     public function addHeaders($headers) {
         if (is_array($headers)) {
@@ -94,22 +102,27 @@ class RestRequest {
                 $this->setHeader($name, $value);
             }
         }
+        return $this;
     }
     
     /**
      * Sets the request body.
      * @param mixed $body - the body. Can be a string, an object or an array.
+     * @return Request this object for chaining
      */
     public function setBody($body) {
         $this->body = $body;
+        return $this;
     }
     
     /**
      * Sets the timeout for this request.
      * @param int $timeout - number of seconds when request shall be aborted
+     * @return Request this object for chaining
      */
     public function setTimeout($timeout) {
         $this->timeout = $timeout;
+        return $this;
     }
     
     /**
@@ -133,7 +146,7 @@ class RestRequest {
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);       
         curl_setopt($curl, CURLOPT_TIMEOUT,       $this->timeout);
         
-        if (($this->method == self::PUT) || ($this->method == self::POST)) {
+        if (($this->method == self::PATCH) || ($this->method == self::PUT) || ($this->method == self::POST)) {
             $body = $this->getStringifiedBody();
             curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
             $this->setHeader(Headers::CONTENT_LENGTH, strlen($body));
@@ -143,7 +156,9 @@ class RestRequest {
         foreach ($this->headers AS $name => $value) {
             $headers[] = $name.': '.$value;
         }
-        curl_setopt($curl, CURLOPT_HTTPHEADER,    $headers);        
+        curl_setopt($curl, CURLOPT_HTTPHEADER,    $headers);
+        
+        return $curl;
     }
     
     /**
@@ -182,5 +197,91 @@ class RestRequest {
         
         return $rc;
     }
+    
+    /**
+     * Execute this request as a single request.
+     * @return Response the response object.
+     */
+    public function execute() {
+        $client = new Client();
+        $rc = $client->addCall($this);
+        $client->run($this->timeout);
+        return $rc;
+    }
+    
+    
+    /**
+     * Shorthand function for creating a HEAD request.
+     * @param string $url - the URL to be called
+     * @return Request the request object created
+     */
+    public static function head($url) {
+        return new Request(Request::HEAD, $url);
+    }
+
+    /**
+     * Shorthand function for creating a GET request.
+     * @param string $url - the URL to be called
+     * @return Request the request object created
+     */
+    public static function get($url) {
+        return new Request(Request::GET, $url);
+    }
+
+    /**
+     * Shorthand function for creating a POST request.
+     * @param string $url - the URL to be called
+     * @param mixed $body - the body. Can be a string, an object or an array.
+     * @return Request the request object created
+     */
+    public static function post($url, $body) {
+        $rc = new Request(Request::POST, $url);
+        $rc->setBody($body);
+        return $rc;
+    }
+
+    /**
+     * Shorthand function for creating a PUT request.
+     * @param string $url - the URL to be called
+     * @param mixed $body - the body. Can be a string, an object or an array.
+     * @return Request the request object created
+     */
+    public static function put($url, $body) {
+        $rc = new Request(Request::PUT, $url);
+        $rc->setBody($body);
+        return $rc;
+    }
+
+    /**
+     * Shorthand function for creating a PATCH request.
+     * @param string $url - the URL to be called
+     * @param mixed $body - the body. Can be a string, an object or an array.
+     * @return Request the request object created
+     */
+    public static function patch($url, $body) {
+        $rc = new Request(Request::PATCH, $url);
+        $rc->setBody($body);
+        return $rc;
+    }
+
+    /**
+     * Shorthand function for creating an OPTIONS request.
+     * @param string $url - the URL to be called
+     * @return Request the request object created
+     */
+    public static function options($url) {
+        return new Request(Request::OPTIONS, $url);
+    }
+
+    /**
+     * Shorthand function for creating a DELETE request.
+     * @param string $url - the URL to be called
+     * @return Request the request object created
+     */
+    public static function delete($url) {
+        return new Request(Request::DELETE, $url);
+    }
+
+    
 }
 
