@@ -23,7 +23,6 @@ class Request {
     protected $url;
     protected $headers;
     protected $body;
-    protected $timeout;
     protected $curl;
     
     /**
@@ -36,7 +35,6 @@ class Request {
         $this->url     = new URL($url);
         $this->headers = Headers::getHeaders($this->url->getHost());
         $this->body    = NULL;
-        $this->timeout = 5;
         $this->curl    = NULL;
     }
     
@@ -73,14 +71,6 @@ class Request {
     }
 
     /**
-     * Returns the timeout limit of this request.
-     * @return int: the timeout in seconds
-     */
-    public function getTimeout() {
-        return $this->timeout;
-    }
-
-    /**
      * Sets a header for the request.
      * @param string $name - name of header
      * @param string value - value of header
@@ -112,16 +102,6 @@ class Request {
      */
     public function setBody($body) {
         $this->body = $body;
-        return $this;
-    }
-    
-    /**
-     * Sets the timeout for this request.
-     * @param int $timeout - number of seconds when request shall be aborted
-     * @return Request this object for chaining
-     */
-    public function setTimeout($timeout) {
-        $this->timeout = $timeout;
         return $this;
     }
     
@@ -200,12 +180,13 @@ class Request {
     
     /**
      * Execute this request as a single request.
+     * @param int $timeout - when the request shall time out (in seconds, optional, default is 5)
      * @return Response the response object.
      */
-    public function execute() {
+    public function execute($timeout = 5) {
         $client = new Client();
         $rc = $client->addCall($this);
-        $client->run($this->timeout);
+        $client->run($timeout);
         return $rc;
     }
     
