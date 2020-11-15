@@ -96,6 +96,16 @@ class Request {
     }
     
     /**
+     * Sets a content type.
+     * <p>Content-Type is by default application/json and it is not required
+     *    to set it explicitely.</p>
+     * @param string $type - the new content type.
+     */
+    public function setContentType($type) {
+        $this->setHeader(Headers::CONTENT_TYPE, $type);
+    }
+    
+    /**
      * Sets the request body.
      * @param mixed $body - the body. Can be a string, an object or an array.
      * @return Request this object for chaining
@@ -122,7 +132,7 @@ class Request {
      */
     public function createCurl() {
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->url);
+        curl_setopt($curl, CURLOPT_URL, $this->url->__toString());
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);       
         curl_setopt($curl, CURLOPT_TIMEOUT,       $this->timeout);
         

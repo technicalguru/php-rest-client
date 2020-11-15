@@ -13,6 +13,7 @@ class Headers {
     public const AUTHORIZATION  = 'Authorization';
     public const CONTENT_LENGTH = 'Content-Length';
     public const CONTENT_TYPE   = 'Content-Type';
+    public const COOKIE         = 'Cookie';
     public const USER_AGENT     = 'User-Agent';
     
     
