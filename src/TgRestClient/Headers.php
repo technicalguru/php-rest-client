@@ -18,6 +18,7 @@ class Headers {
     
     
     public const TYPE_JSON                  = 'application/json';
+    public const TYPE_HAL_JSON              = 'application/hal+json';
     public const TYPE_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
     
     protected static $defaultHeaders;
