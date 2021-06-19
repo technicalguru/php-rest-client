@@ -22,6 +22,11 @@
 			"TgRestClient\\" : "src/TgRestClient/"
 		}
 	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "1.0-dev"
+		}
+	},
 	"require-dev" : {
 		"phpunit/phpunit" : "^9"
 	}

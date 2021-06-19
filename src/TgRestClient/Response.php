@@ -122,12 +122,22 @@ class Response {
      * @return mixed: the response body as object, array or string. NULL if not requested yet.
      */
     public function getBody() {
-        if (strpos($this->getContentType(), Headers::TYPE_JSON) === 0) {
+		if ($this->isJsonResponse()) {
             return $this->getJsonDecodedBody();
         }
         return $this->body;
     }
-    
+
+	/**
+	 * Returns TRUE when the response is a JSON response (see Headers constants)
+	 * @return boolean TRUE when the JSON header is present
+	 */  
+	public function isJsonResponse() { 
+        if (strpos($this->getContentType(), Headers::TYPE_JSON) === 0)     return TRUE;
+        if (strpos($this->getContentType(), Headers::TYPE_HAL_JSON) === 0) return TRUE;
+		return FALSE;
+	}
+
     /**
      * Returns the response body as JSON decoded object.
      * @return object: the response body. NULL if not requested yet.
